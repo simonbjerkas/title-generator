@@ -12,7 +12,7 @@ export const kickoffTitleGenerationWorkflow = mutation({
 
 export const generateTitleWorkflow = workflow.define({
   args: { url: v.string() },
-  handler: async (step, { url }): Promise<string> => {
+  handler: async (step, { url }): Promise<string[]> => {
     const transcript = await step.runAction(
       internal.transcripts.getYouTubeTranscript,
       { url },
@@ -22,7 +22,15 @@ export const generateTitleWorkflow = workflow.define({
       internal.transcripts.summarizeTranscript,
       { transcript }
     );
+    const allTitles = await Promise.all([
+      step.runAction(internal.agents.storyTellingAgent, {
+        summary,
+      }),
+      step.runAction(internal.agents.t3Agent, {
+        summary,
+      }),
+    ]);
 
-    return summary;
+    return allTitles.flat();
   },
 });

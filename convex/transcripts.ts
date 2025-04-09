@@ -2,7 +2,7 @@ import { v } from 'convex/values';
 import { internalAction } from './_generated/server';
 
 import { Innertube } from 'youtubei.js/web';
-import { GoogleGenAI } from '@google/genai';
+import { ai } from '.';
 
 export const getYouTubeTranscript = internalAction({
   args: {
@@ -32,9 +32,6 @@ export const summarizeTranscript = internalAction({
     transcript: v.string(),
   },
   handler: async (_, { transcript }) => {
-    const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-    });
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
       contents: `Summarize the following youtube transcript: ${transcript}`,
@@ -46,6 +43,7 @@ export const summarizeTranscript = internalAction({
           'Do not include any other text than the summary.',
           'Please return your response in markdown format.',
         ],
+        responseMimeType: 'text/plain',
       },
     });
     if (!response.text) {
