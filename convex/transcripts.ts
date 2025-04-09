@@ -20,6 +20,9 @@ export const getYouTubeTranscript = internalAction({
     const transcriptText = transcript.content?.body?.initial_segments
       .map((segment) => segment.snippet.text ?? '')
       .join(' ');
+    if (!transcriptText) {
+      throw new Error('No transcript found');
+    }
     return transcriptText;
   },
 });
@@ -45,6 +48,9 @@ export const summarizeTranscript = internalAction({
         ],
       },
     });
+    if (!response.text) {
+      throw new Error('No response from AI');
+    }
     return response.text;
   },
 });
